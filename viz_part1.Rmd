@@ -3,3 +3,52 @@ title: "Viz part 1"
 output: github_document
 ---
 
+```{r}
+library(tidyverse)
+library(ggridges)
+```
+
+Get data for plotting:
+```{r}
+weather_df = 
+  rnoaa::meteo_pull_monitors( # pulling 3 monitors
+    c("USW00094728", "USW00022534", "USS0023B17S"),
+    var = c("PRCP", "TMIN", "TMAX"), 
+    date_min = "2021-01-01",
+    date_max = "2022-12-31") |>
+  mutate(
+    name = recode(
+      id, 
+      USW00094728 = "CentralPark_NY", 
+      USW00022534 = "Molokai_HI",
+      USS0023B17S = "Waterhole_WA"),
+    tmin = tmin / 10,
+    tmax = tmax / 10) |>
+  select(name, id, everything())
+```
+
+
+Make a plot:
+```{r}
+ggplot(weather_df,aes(x = tmin, y = tmax)) + 
+  geom_point()
+```
+
+Pipes and stuff:
+```{r}
+weather_df |> 
+  filter(name == "CentralPark_NY") |> 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_point()
+
+
+ggp_nyc_weather = 
+  weather_df |> 
+  filter(name == "CentralPark_NY") |> 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_point()
+#doesn't print plot, need to call it
+
+ggp_nyc_weather
+```
+

@@ -75,7 +75,21 @@ ggplot(weather_df, aes(x = tmin, y = tmax, color = name)) +
 ```
 
 
+Another Plot:
+```{r}
+ggplot(weather_df, aes(x = date, y = tmax, color = name)) + 
+  geom_point(aes(size = prcp), alpha = 0.3) + 
+  geom_smooth() + # adds line through points
+  facet_grid(. ~ name) # separates into each graph by name
+```
 
+Assigning different colors
+```{r}
+weather_df |> 
+  filter(name == "CentralPark_NY") |> 
+  ggplot(aes(x = date, y = tmax)) + 
+  geom_point(color = "blue", size = .5)
+```
 
 
 

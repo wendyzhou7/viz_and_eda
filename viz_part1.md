@@ -168,3 +168,91 @@ weather_df |>
 ```
 
 ![](viz_part1_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+Hex Plot
+
+``` r
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_hex()
+```
+
+    ## Warning: Removed 17 rows containing non-finite values (`stat_binhex()`).
+
+![](viz_part1_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+line graph
+
+``` r
+weather_df |> 
+  filter(name == "Molokai_HI") |> 
+  ggplot(aes(x = date, y = tmax)) +
+  geom_line(alpha = .5) + 
+  geom_point(size = .5)
+```
+
+    ## Warning: Removed 1 rows containing missing values (`geom_point()`).
+
+![](viz_part1_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+## Univariate Plotting
+
+Histogram
+
+``` r
+ggplot(weather_df, aes(x = tmax, fill = name)) + 
+  geom_histogram(position = "dodge")
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+    ## Warning: Removed 17 rows containing non-finite values (`stat_bin()`).
+
+![](viz_part1_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+Density plot
+
+``` r
+ggplot(weather_df, aes(x = tmax, fill = name)) + 
+  geom_density(alpha = .3, adjust = .75) #adjust lets you control how smooth the graph can be
+```
+
+    ## Warning: Removed 17 rows containing non-finite values (`stat_density()`).
+
+![](viz_part1_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+Boxplots
+
+``` r
+ggplot(weather_df, aes(y = tmax, x = name)) + 
+  geom_boxplot()
+```
+
+    ## Warning: Removed 17 rows containing non-finite values (`stat_boxplot()`).
+
+![](viz_part1_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+Violin Plots
+
+``` r
+ggplot(weather_df, aes(y = tmax, x = name)) + 
+  geom_violin()
+```
+
+    ## Warning: Removed 17 rows containing non-finite values (`stat_ydensity()`).
+
+![](viz_part1_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+Ridge Plot
+
+``` r
+ggplot(weather_df, aes(x = tmax, y = name)) + 
+  geom_density_ridges()
+```
+
+    ## Picking joint bandwidth of 1.54
+
+    ## Warning: Removed 17 rows containing non-finite values
+    ## (`stat_density_ridges()`).
+
+![](viz_part1_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->

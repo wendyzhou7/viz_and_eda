@@ -91,6 +91,82 @@ weather_df |>
   geom_point(color = "blue", size = .5)
 ```
 
+Hex Plot
+```{r}
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_hex()
+```
+
+line graph
+```{r}
+weather_df |> 
+  filter(name == "Molokai_HI") |> 
+  ggplot(aes(x = date, y = tmax)) +
+  geom_line(alpha = .5) + 
+  geom_point(size = .5)
+```
+
+
+## Univariate Plotting
+
+Histogram
+```{r}
+ggplot(weather_df, aes(x = tmax, fill = name)) + 
+  geom_histogram(position = "dodge")
+```
+
+
+Density plot
+```{r}
+ggplot(weather_df, aes(x = tmax, fill = name)) + 
+  geom_density(alpha = .3, adjust = .75) #adjust lets you control how smooth the graph can be
+```
+
+
+Boxplots
+```{r}
+ggplot(weather_df, aes(y = tmax, x = name)) + 
+  geom_boxplot()
+```
+
+
+Violin Plots
+```{r}
+ggplot(weather_df, aes(y = tmax, x = name)) + 
+  geom_violin()
+```
+
+
+Ridge Plot
+```{r}
+ggplot(weather_df, aes(x = tmax, y = name)) + 
+  geom_density_ridges()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

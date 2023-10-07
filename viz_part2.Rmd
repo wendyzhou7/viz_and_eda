@@ -6,6 +6,7 @@ output: github_document
 ```{r}
 library(tidyverse)
 library(ggridges)
+library(patchwork)
 ```
 
 ```{r}
@@ -22,8 +23,8 @@ weather_df =
   rnoaa::meteo_pull_monitors( # pulling 3 monitors
     c("USW00094728", "USW00022534", "USS0023B17S"),
     var = c("PRCP", "TMIN", "TMAX"), 
-    date_min = "2021-01-01",
-    date_max = "2022-12-31") |>
+    date_min = "2022-01-01",
+    date_max = "2023-12-31") |>
   mutate(
     name = recode(
       id, 
@@ -34,6 +35,8 @@ weather_df =
     tmax = tmax / 10) |>
   select(name, id, everything())
 ```
+
+This results in a dataframe with `r nrow(weather_df)` observations on 6 variables.
 
 labs
 ```{r}
@@ -73,12 +76,129 @@ ggp_temp_plot =
     color = "Location",
     caption = "Data from the rnoaa package"
   ) + 
-  viridis::scale_color_viridis(
-    name = "Location", 
-    discrete = TRUE
-  )
+  viridis::scale_color_viridis(name = "Location", discrete = TRUE)
 
 ggp_temp_plot
+```
+
+
+## Themes
+```{r}
+ggp_temp_plot = 
+  weather_df |> 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_point(aes(color = name), alpha = .5) + 
+  labs(
+    title = "Temperature plot",
+    x = "Minimum daily temperature (C)",
+    y = "Maxiumum daily temperature (C)",
+    color = "Location",
+    caption = "Data from the rnoaa package"
+  ) + 
+  viridis::scale_color_viridis(name = "Location", discrete = TRUE) + 
+  theme(legend.position = "bottom")
+
+
+
+ggp_temp_plot
+```
+
+
+## data argument
+```{r}
+weather_df |> 
+  ggplot(aes(x = date, y = tmax)) +
+  geom_point(aes(color = name), alpha = .5) + 
+  geom_smooth()
+
+central_park_df = 
+  weather_df |> 
+  filter(name == "CentralPark_NY")
+
+molokai_df = 
+  weather_df |> 
+  filter(name == "Molokai_HI")
+
+ggplot(data = molokai_df, aes(x = date, y = tmax, color = name)) + 
+  geom_point() + 
+  geom_line(data = central_park_df) 
+```
+
+
+
+## 'patchwork'
+```{r}
+ggp_temp = 
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax, color = name)) + 
+  geom_point(alpha = .5) +
+  theme(legend.position = "none")
+
+ggp_prcp = 
+weather_df |> 
+  filter(prcp > 25) |> 
+  ggplot(aes(x = prcp, fill = name)) + 
+  geom_density(alpha = .5) + 
+  theme(legend.position = "none")
+
+tmax_date_p = 
+  weather_df |> 
+  ggplot(aes(x = date, y = tmax, color = name)) + 
+  geom_point(alpha = .5) +
+  geom_smooth(se = FALSE) + 
+  theme(legend.position = "bottom")
+
+(ggp_temp + ggp_prcp) / tmax_date_p # displays both graphs next to each other
+```
+
+
+## data manipulation
+```{r}
+weather_df |> 
+  mutate(
+    name = fct_relevel(name, c("Molokai_HI", "CentralPark_NY", "Waterhole_WA")) # put in order of name
+  ) |> 
+  ggplot(aes(x = name, y = tmax)) + 
+  geom_boxplot()
+```
+
+```{r}
+weather_df |>
+  mutate(
+    name = fct_reorder(name, tmax) # put in order by increasing tmax
+    ) |> 
+  ggplot(aes(x = name, y = tmax)) + 
+  geom_violin(aes(fill = name), color = "blue", alpha = .5)
+```
+
+
+
+## complicated FAS plot
+```{r}
+litter_df = 
+  read_csv("./data/FAS_litters.csv") |>
+  janitor::clean_names() |>
+  separate(group, into = c("dose", "day_of_tx"), sep = 3) # separate 3 characters in
+
+
+pup_df = 
+  read_csv("./data/FAS_pups.csv") |>
+  janitor::clean_names()
+
+fas_data = 
+  left_join(pup_df, litter_df, by = "litter_number") 
+
+fas_data |> 
+  select(dose, day_of_tx, pd_ears:pd_walk) |> 
+  pivot_longer(
+    pd_ears:pd_walk,
+    names_to = "outcome", 
+    values_to = "pn_day") |> 
+  drop_na() |> 
+  mutate(outcome = fct_reorder(outcome, pn_day, median)) |> 
+  ggplot(aes(x = dose, y = pn_day)) + 
+  geom_violin() + 
+  facet_grid(day_of_tx ~ outcome)
 ```
 
 

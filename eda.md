@@ -248,3 +248,67 @@ weather_df |>
 | 2023-08-01 |           27.6 |       30.6 |         17.5 |
 | 2023-09-01 |           24.3 |       30.9 |         12.0 |
 | 2023-10-01 |           24.4 |       31.7 |         10.0 |
+
+## Grouped mutate
+
+``` r
+weather_df |>
+  group_by(name) |>
+  mutate(
+    mean_tmax = mean(tmax, na.rm = TRUE),
+    centered_tmax = tmax - mean_tmax) |> 
+  ggplot(aes(x = date, y = centered_tmax, color = name)) + 
+    geom_point() 
+```
+
+    ## Warning: Removed 105 rows containing missing values (`geom_point()`).
+
+<img src="eda_files/figure-gfm/unnamed-chunk-13-1.png" width="90%" />
+
+``` r
+weather_df |>
+  group_by(name, month) |>
+  mutate(temp_ranking = min_rank(tmax))
+```
+
+    ## # A tibble: 2,007 × 8
+    ## # Groups:   name, month [66]
+    ##    name           id        date        prcp  tmax  tmin month      temp_ranking
+    ##    <chr>          <chr>     <date>     <dbl> <dbl> <dbl> <date>            <int>
+    ##  1 CentralPark_NY USW00094… 2022-01-01   201  13.3  10   2022-01-01           30
+    ##  2 CentralPark_NY USW00094… 2022-01-02    10  15     2.8 2022-01-01           31
+    ##  3 CentralPark_NY USW00094… 2022-01-03     0   2.8  -5.5 2022-01-01           16
+    ##  4 CentralPark_NY USW00094… 2022-01-04     0   1.1  -7.1 2022-01-01           12
+    ##  5 CentralPark_NY USW00094… 2022-01-05    58   8.3  -0.5 2022-01-01           27
+    ##  6 CentralPark_NY USW00094… 2022-01-06     0   5     1.1 2022-01-01           22
+    ##  7 CentralPark_NY USW00094… 2022-01-07    97   1.1  -3.8 2022-01-01           12
+    ##  8 CentralPark_NY USW00094… 2022-01-08     0  -1    -6.6 2022-01-01            8
+    ##  9 CentralPark_NY USW00094… 2022-01-09    25   4.4  -1.6 2022-01-01           19
+    ## 10 CentralPark_NY USW00094… 2022-01-10     0   4.4  -4.3 2022-01-01           19
+    ## # ℹ 1,997 more rows
+
+lags, are used to compare an observation to it’s previous value. This is
+useful, for example, to find the day-by-day change in max temperature
+within each station over the year:
+
+``` r
+weather_df |>
+  group_by(name) |>
+  mutate(temp_change = tmax - lag(tmax))
+```
+
+    ## # A tibble: 2,007 × 8
+    ## # Groups:   name [3]
+    ##    name           id         date        prcp  tmax  tmin month      temp_change
+    ##    <chr>          <chr>      <date>     <dbl> <dbl> <dbl> <date>           <dbl>
+    ##  1 CentralPark_NY USW000947… 2022-01-01   201  13.3  10   2022-01-01        NA  
+    ##  2 CentralPark_NY USW000947… 2022-01-02    10  15     2.8 2022-01-01         1.7
+    ##  3 CentralPark_NY USW000947… 2022-01-03     0   2.8  -5.5 2022-01-01       -12.2
+    ##  4 CentralPark_NY USW000947… 2022-01-04     0   1.1  -7.1 2022-01-01        -1.7
+    ##  5 CentralPark_NY USW000947… 2022-01-05    58   8.3  -0.5 2022-01-01         7.2
+    ##  6 CentralPark_NY USW000947… 2022-01-06     0   5     1.1 2022-01-01        -3.3
+    ##  7 CentralPark_NY USW000947… 2022-01-07    97   1.1  -3.8 2022-01-01        -3.9
+    ##  8 CentralPark_NY USW000947… 2022-01-08     0  -1    -6.6 2022-01-01        -2.1
+    ##  9 CentralPark_NY USW000947… 2022-01-09    25   4.4  -1.6 2022-01-01         5.4
+    ## 10 CentralPark_NY USW000947… 2022-01-10     0   4.4  -4.3 2022-01-01         0  
+    ## # ℹ 1,997 more rows
